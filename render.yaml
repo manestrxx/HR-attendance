@@ -1,0 +1,26 @@
+# render.yaml — إعدادات النشر على Render
+services:
+  - type: web
+    name: hr-attendance
+    runtime: node
+    plan: starter            # القرص الدائم يتطلب خطة مدفوعة، بدونه تُمسح البيانات مع كل نشر
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: APP_TIMEZONE
+        value: Asia/Muscat
+      - key: DB_PATH
+        value: /var/data/attendance.db
+      - key: ADMIN_USER
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false            # تكتبها بنفسك في Render عند الإنشاء
+      - key: SESSION_SECRET
+        generateValue: true
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
