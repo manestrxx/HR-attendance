@@ -117,3 +117,18 @@ dialog::backdrop { background: rgb(11 27 63 / .45); }
 .stat[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-50); }
 .stat .n { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
 .count-pill { min-width: 1.25rem; height: 1.25rem; padding: 0 .35rem; border-radius: 999px; background: var(--red); color: #fff; font-size: .7rem; font-weight: 700; display: inline-grid; place-items: center; }
+
+/* الصلاحيات: إخفاء عناصر التعديل حسب الدور */
+body.role-viewer .w-only { display: none !important; }
+body:not(.role-admin) .admin-only { display: none !important; }
+body:not(.role-viewer) .viewer-only { display: none !important; }
+
+/* تقويم الإجازات */
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .3rem; }
+.cal-head { text-align: center; font-size: .72rem; font-weight: 600; color: var(--muted); padding-bottom: .25rem; }
+.cal-day { aspect-ratio: 1 / 1; border-radius: .7rem; border: 1px solid var(--blue-100); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .85rem; font-weight: 600; position: relative; background: #fff; }
+.cal-day.weekend { background: #f6f8fc; color: var(--muted); }
+.cal-day.today { border: 2px solid var(--blue); color: var(--blue); }
+.cal-day.holiday { background: #f3efff; border-color: #ddd2fb; color: #5634b8; cursor: pointer; }
+.cal-day .cal-dot { width: .35rem; height: .35rem; border-radius: 999px; background: var(--violet); margin-top: .15rem; }
+.cal-day.blank { border: none; background: transparent; }

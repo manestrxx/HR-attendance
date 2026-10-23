@@ -5,6 +5,8 @@
   let today = new Date().toISOString().slice(0, 10);
   let view = 'punch';
   let clearTimer = null;
+  let geoRequired = false;
+  let nextHoliday = null;
 
   const $ = (id) => document.getElementById(id);
   const form = $('main-form');
@@ -28,7 +30,27 @@
   async function loadHours() {
     // أوقات الدوام تظهر للموظف للعلم فقط
     const data = await api('/api/work-hours');
-    if (data.ok) $('work-hours').textContent = `${data.start} – ${data.end}`;
+    if (!data.ok) return;
+    $('work-hours').textContent = `${data.start} – ${data.end}`;
+    geoRequired = data.geo_required;
+    nextHoliday = data.next_holiday;
+    renderHoliday();
+  }
+  function renderHoliday() {
+    if (!nextHoliday) return;
+    $('holiday-line').hidden = false;
+    $('holiday-text').textContent = `${nextHoliday.name} · ${fmtRange(nextHoliday.date_from, nextHoliday.date_to)}`;
+  }
+
+  // تحديد موقع الموظف عبر GPS الجوال
+  function getLocation() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve({ error: 'location_unavailable' });
+      navigator.geolocation.getCurrentPosition(
+        (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
+        (err) => resolve({ error: err.code === 1 ? 'location_denied' : 'location_unavailable' }),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    });
   }
 
   function tick() {
@@ -55,6 +77,7 @@
   /* ---------- النتيجة ---------- */
   function showResult(html, kind) {
     const styles = {
+      info: 'border-color:var(--line);background:var(--blue-50);color:var(--blue)',
       success: 'border-color:#bfeadb;background:#f0fbf6;color:#064e36',
       error: 'border-color:#f6cccc;background:#fff5f5;color:#8a1c1c',
     };
@@ -108,7 +131,14 @@
   });
 
   async function punch(emp_no, pin, action) {
-    const data = await api('/api/punch', { method: 'POST', body: { emp_no, pin, action } });
+    let location = null;
+    if (geoRequired) {
+      showResult(`<p class="font-semibold">${escapeHtml(t('locating'))}</p>`, 'info');
+      location = await getLocation();
+      if (location.error) { pinInput.value = ''; return showError({ error: location.error }); }
+    }
+    const data = await api('/api/punch', { method: 'POST', body: { emp_no, pin, action, location } });
+    if (data.error === 'location_required' && !geoRequired) { geoRequired = true; return punch(emp_no, pin, action); }
     pinInput.value = '';
     if (!data.ok) return showError(data);
     rememberEmp(emp_no);
@@ -125,7 +155,7 @@
         <div class="min-w-0">
           <p class="text-sm opacity-80">${escapeHtml(t('hello'))} ${escapeHtml(r.name)}</p>
           <p class="text-lg font-bold">${escapeHtml(t(isIn ? 'success_in' : 'success_out'))}</p>
-          <p class="mt-1 text-sm">${escapeHtml(t('at'))} <b class="tabular" dir="ltr">${escapeHtml(r.time)}</b></p>
+          <p class="mt-1 text-sm">${escapeHtml(t('at'))} <b class="tabular" dir="ltr">${escapeHtml(r.time)}</b>${r.site_name ? ` · ${escapeHtml(t('at_site', { site: r.site_name }))}` : ''}</p>
           ${data.today && !isIn ? `<p class="mt-1 text-sm">${escapeHtml(t('worked_today'))}: <b class="tabular" dir="ltr">${escapeHtml(data.today.hours)}</b></p>` : ''}
           ${late}
         </div>
@@ -172,7 +202,7 @@
       </li>`).join('') : `<li class="card p-6 text-center text-sm muted">${escapeHtml(t('no_requests'))}</li>`;
   }
 
-  document.addEventListener('langchange', () => { tick(); if (!$('ex-file').files[0]) $('ex-file-name').textContent = t('choose_attachment'); });
+  document.addEventListener('langchange', () => { tick(); renderHoliday(); if (!$('ex-file').files[0]) $('ex-file-name').textContent = t('choose_attachment'); });
   syncTime().then(tick);
   loadHours();
   setInterval(tick, 1000);

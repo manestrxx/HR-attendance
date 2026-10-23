@@ -55,13 +55,17 @@
         <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="records" data-i18n="tab_records"></button>
         <button class="tab-btn tab-top flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="excuses"><span data-i18n="tab_excuses"></span><span class="count-pill pending-pill" hidden></span></button>
         <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="employees" data-i18n="tab_employees"></button>
-        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="reminders" data-i18n="tab_reminders"></button>
-        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="export" data-i18n="tab_export"></button>
-        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="settings" data-i18n="tab_settings"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="holidays" data-i18n="tab_holidays"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="reminders" data-i18n="tab_reminders"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="export" data-i18n="tab_export"></button>
+        <button class="admin-only tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="settings" data-i18n="tab_settings"></button>
+        <button class="admin-only tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="users" data-i18n="tab_users"></button>
+        <button class="admin-only tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold whitespace-nowrap" data-tab="audit" data-i18n="tab_audit"></button>
       </nav>
     </header>
 
     <main class="mx-auto max-w-6xl px-4 pb-28 pt-5 md:pb-12">
+      <p class="viewer-only card-soft mb-4 px-4 py-2.5 text-sm font-medium" style="color:var(--blue)" data-i18n="read_only"></p>
 
       <!-- ===== مباشر ===== -->
       <section id="tab-live" class="tab-panel space-y-4">
@@ -105,7 +109,7 @@
             <button class="btn btn-primary shrink-0" data-i18n="show"></button>
           </div>
         </form>
-        <details class="card p-4">
+        <details class="w-only card p-4">
           <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_record"></summary>
           <form id="manual-form" class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-6">
             <input name="emp_no" class="field col-span-2 tabular md:col-span-1" data-i18n-placeholder="emp_no" required dir="ltr">
@@ -131,7 +135,7 @@
           <button class="chip" data-status="" data-i18n="all"></button>
           <input id="excuse-search" class="field ms-auto max-w-xs py-2 text-sm" data-i18n-placeholder="search">
         </div>
-        <details class="card p-4">
+        <details class="w-only card p-4">
           <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_excuse"></summary>
           <form id="excuse-form" class="mt-4 grid grid-cols-2 gap-3">
             <label><span class="label" data-i18n="emp_no"></span><input name="emp_no" class="field tabular" required dir="ltr"></label>
@@ -155,7 +159,7 @@
 
       <!-- ===== الموظفون ===== -->
       <section id="tab-employees" class="tab-panel space-y-4" hidden>
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="w-only grid gap-4 md:grid-cols-2">
           <details class="card p-4" open>
             <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_employee"></summary>
             <form id="emp-form" class="mt-4 grid grid-cols-2 gap-3">
@@ -164,6 +168,11 @@
               <input name="name" class="field col-span-2" data-i18n-placeholder="name" required>
               <input name="department" class="field" data-i18n-placeholder="department">
               <input name="job_title" class="field" data-i18n-placeholder="job_title">
+              <label class="col-span-2"><span class="label" data-i18n="geo_mode"></span>
+                <select name="geo_mode" class="field geo-mode">
+                  <option value="any" data-i18n="geo_any"></option><option value="assigned" data-i18n="geo_assigned"></option><option value="exempt" data-i18n="geo_exempt"></option>
+                </select></label>
+              <div class="site-picker col-span-2 flex flex-wrap gap-2" hidden></div>
               <p class="col-span-2 text-xs muted" data-i18n="pin_hint"></p>
               <button class="btn btn-primary col-span-2" data-i18n="save"></button>
             </form>
@@ -196,7 +205,7 @@
             <h2 class="text-xl font-bold" data-i18n="reminders_title"></h2>
             <p class="mt-1 text-sm muted" data-i18n="reminders_hint"></p>
           </div>
-          <button id="btn-add-reminder" class="btn btn-primary">
+          <button id="btn-add-reminder" class="w-only btn btn-primary">
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             <span data-i18n="add_reminder"></span></button>
         </div>
@@ -241,7 +250,19 @@
       </section>
 
       <!-- ===== الإعدادات ===== -->
-      <section id="tab-settings" class="tab-panel" hidden>
+      <section id="tab-settings" class="tab-panel space-y-4" hidden>
+        <div class="card mx-auto max-w-3xl p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="max-w-xl">
+              <h2 class="text-lg font-bold" data-i18n="sites_title"></h2>
+              <p class="mt-1 text-sm muted" data-i18n="sites_hint"></p>
+            </div>
+            <button type="button" id="btn-add-site" class="btn btn-primary btn-sm">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              <span data-i18n="add_site"></span></button>
+          </div>
+          <ul id="site-list" class="mt-4 grid gap-3 sm:grid-cols-2"></ul>
+        </div>
         <form id="settings-form" class="mx-auto grid max-w-3xl gap-4 md:grid-cols-2">
           <div class="card space-y-4 p-5">
             <h2 class="font-bold" data-i18n="settings_company"></h2>
@@ -277,6 +298,67 @@
           </div>
         </form>
       </section>
+
+      <!-- ===== الإجازات ===== -->
+      <section id="tab-holidays" class="tab-panel space-y-4" hidden>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold" data-i18n="holidays_title"></h2>
+            <p class="mt-1 text-sm muted" data-i18n="holidays_hint"></p>
+          </div>
+          <button id="btn-add-holiday" class="w-only btn btn-primary">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="add_holiday"></span></button>
+        </div>
+        <div class="grid gap-4 lg:grid-cols-5">
+          <div class="card p-4 lg:col-span-3">
+            <div class="mb-3 flex items-center justify-between">
+              <button id="cal-prev" class="icon-btn" aria-label="previous"><svg viewBox="0 0 24 24" class="h-4 w-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+              <h3 id="cal-title" class="font-bold"></h3>
+              <button id="cal-next" class="icon-btn" aria-label="next"><svg viewBox="0 0 24 24" class="h-4 w-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+            </div>
+            <div id="cal-grid" class="cal-grid"></div>
+          </div>
+          <div class="card p-4 lg:col-span-2">
+            <h3 class="mb-2 font-bold" data-i18n="upcoming"></h3>
+            <ul id="holiday-list" class="space-y-2"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== الحسابات ===== -->
+      <section id="tab-users" class="tab-panel space-y-4" hidden>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold" data-i18n="users_title"></h2>
+            <p class="mt-1 text-sm muted" data-i18n="users_hint"></p>
+          </div>
+          <button id="btn-add-user" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="add_user"></span></button>
+        </div>
+        <ul id="user-list" class="grid gap-3 md:grid-cols-2"></ul>
+      </section>
+
+      <!-- ===== سجل التعديلات ===== -->
+      <section id="tab-audit" class="tab-panel space-y-4" hidden>
+        <div>
+          <h2 class="text-xl font-bold" data-i18n="audit_title"></h2>
+          <p class="mt-1 text-sm muted" data-i18n="audit_hint"></p>
+        </div>
+        <form id="audit-form" class="card grid grid-cols-2 gap-3 p-4 md:grid-cols-6">
+          <label><span class="label" data-i18n="from"></span><input name="from" type="date" class="field tabular" dir="ltr"></label>
+          <label><span class="label" data-i18n="to"></span><input name="to" type="date" class="field tabular" dir="ltr"></label>
+          <label class="col-span-2 md:col-span-1"><span class="label" data-i18n="username"></span><select name="user" class="field"></select></label>
+          <label class="col-span-2"><span class="label" data-i18n="search"></span><input name="q" class="field" data-i18n-placeholder="search"></label>
+          <div class="col-span-2 flex items-end gap-2 md:col-span-1">
+            <button class="btn btn-primary flex-1" data-i18n="show"></button>
+            <a id="audit-export" class="btn btn-ghost" aria-label="export">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg></a>
+          </div>
+        </form>
+        <ol id="audit-list" class="card divide-y px-4" style="border-color:var(--line)"></ol>
+      </section>
     </main>
 
     <!-- التبويبات أسفل الشاشة (الجوال) -->
@@ -298,9 +380,12 @@
   <!-- قائمة المزيد (الجوال) -->
   <dialog id="more-dialog" class="m-0 mt-auto w-full max-w-none rounded-b-none">
     <div class="space-y-1 p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <button class="btn btn-ghost w-full justify-start border-0" data-goto="holidays"><span data-i18n="tab_holidays"></span></button>
       <button class="btn btn-ghost w-full justify-start border-0" data-goto="reminders"><span data-i18n="tab_reminders"></span></button>
       <button class="btn btn-ghost w-full justify-start border-0" data-goto="export"><span data-i18n="tab_export"></span></button>
-      <button class="btn btn-ghost w-full justify-start border-0" data-goto="settings"><span data-i18n="tab_settings"></span></button>
+      <button class="admin-only btn btn-ghost w-full justify-start border-0" data-goto="settings"><span data-i18n="tab_settings"></span></button>
+      <button class="admin-only btn btn-ghost w-full justify-start border-0" data-goto="users"><span data-i18n="tab_users"></span></button>
+      <button class="admin-only btn btn-ghost w-full justify-start border-0" data-goto="audit"><span data-i18n="tab_audit"></span></button>
       <button class="btn btn-ghost w-full justify-start border-0" id="more-password"><span data-i18n="change_password"></span></button>
       <button class="btn btn-danger w-full justify-start border-0" id="more-logout"><span data-i18n="logout"></span></button>
     </div>
@@ -316,6 +401,11 @@
       <label class="col-span-2"><span class="label" data-i18n="name"></span><input name="name" class="field" required></label>
       <label class="col-span-2"><span class="label" data-i18n="job_title"></span><input name="job_title" class="field"></label>
       <label class="col-span-2"><span class="label" data-i18n="new_pin"></span><input name="pin" class="field tabular" inputmode="numeric" pattern="\d{4,6}" maxlength="6" dir="ltr"></label>
+      <label class="col-span-2"><span class="label" data-i18n="geo_mode"></span>
+        <select name="geo_mode" class="field geo-mode">
+          <option value="any" data-i18n="geo_any"></option><option value="assigned" data-i18n="geo_assigned"></option><option value="exempt" data-i18n="geo_exempt"></option>
+        </select></label>
+      <div class="site-picker col-span-2 flex flex-wrap gap-2" hidden></div>
       <p id="edit-error" class="col-span-2 text-sm" style="color:var(--red)" hidden></p>
       <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
       <button value="save" class="btn btn-primary" data-i18n="save"></button>
@@ -360,6 +450,66 @@
       <input name="current" type="password" class="field" data-i18n-placeholder="current_password" autocomplete="current-password" required dir="ltr">
       <input name="next" type="password" class="field" data-i18n-placeholder="new_password" autocomplete="new-password" minlength="8" required dir="ltr">
       <p id="pw-error" class="text-sm" style="color:var(--red)" hidden></p>
+      <div class="grid grid-cols-2 gap-3">
+        <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+        <button value="save" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- نافذة الموقع -->
+  <dialog id="site-dialog" class="w-[min(94vw,30rem)]">
+    <form id="site-form" method="dialog" class="space-y-3 p-5">
+      <h3 id="site-dialog-title" class="text-lg font-bold"></h3>
+      <input type="hidden" name="id">
+      <label class="block"><span class="label" data-i18n="site_name"></span><input name="name" class="field" required maxlength="80" data-i18n-placeholder="site_name_ph"></label>
+      <div>
+        <span class="label" data-i18n="coordinates"></span>
+        <input name="coords" class="field tabular" dir="ltr" required data-i18n-placeholder="coordinates_ph">
+        <button type="button" id="btn-my-location" class="btn btn-outline btn-sm mt-2 w-full">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>
+          <span data-i18n="use_my_location"></span></button>
+        <p id="coords-msg" class="mt-1.5 text-xs" hidden></p>
+      </div>
+      <label class="block"><span class="label" data-i18n="radius"></span><input name="radius" type="number" min="20" max="5000" step="10" class="field tabular" dir="ltr" required></label>
+      <p id="site-error" class="text-sm" style="color:var(--red)" hidden></p>
+      <div class="grid grid-cols-2 gap-3">
+        <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+        <button value="save" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- نافذة الإجازة -->
+  <dialog id="holiday-dialog" class="w-[min(92vw,26rem)]">
+    <form id="holiday-form" method="dialog" class="grid grid-cols-2 gap-3 p-5">
+      <h3 id="holiday-dialog-title" class="col-span-2 text-lg font-bold"></h3>
+      <input type="hidden" name="id">
+      <label class="col-span-2"><span class="label" data-i18n="holiday_name"></span><input name="name" class="field" required maxlength="100" data-i18n-placeholder="holiday_name_ph"></label>
+      <label><span class="label" data-i18n="date_from"></span><input name="date_from" type="date" class="field tabular" required dir="ltr"></label>
+      <label><span class="label" data-i18n="date_to"></span><input name="date_to" type="date" class="field tabular" dir="ltr"></label>
+      <p id="holiday-error" class="col-span-2 text-sm" style="color:var(--red)" hidden></p>
+      <button type="button" id="holiday-delete" class="btn btn-danger col-span-2" data-i18n="delete" hidden></button>
+      <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+      <button value="save" class="btn btn-primary" data-i18n="save"></button>
+    </form>
+  </dialog>
+
+  <!-- نافذة الحساب -->
+  <dialog id="user-dialog" class="w-[min(92vw,26rem)]">
+    <form id="user-form" method="dialog" class="space-y-3 p-5">
+      <h3 id="user-dialog-title" class="text-lg font-bold"></h3>
+      <input type="hidden" name="id">
+      <label class="block"><span class="label" data-i18n="username"></span><input name="username" class="field" dir="ltr" autocomplete="off" required>
+        <span class="mt-1 block text-xs muted" data-i18n="username_hint"></span></label>
+      <label class="block"><span id="user-pw-label" class="label"></span><input name="password" type="password" class="field" dir="ltr" autocomplete="new-password" minlength="8"></label>
+      <fieldset class="space-y-2">
+        <legend class="label" data-i18n="role"></legend>
+        <label class="card-soft flex cursor-pointer items-start gap-3 px-3 py-2.5"><input type="radio" name="role" value="admin" class="mt-1" style="accent-color:var(--blue)"><span><b data-i18n="role_admin"></b><span class="block text-xs muted" data-i18n="role_admin_desc"></span></span></label>
+        <label class="card-soft flex cursor-pointer items-start gap-3 px-3 py-2.5"><input type="radio" name="role" value="hr" class="mt-1" style="accent-color:var(--blue)"><span><b data-i18n="role_hr"></b><span class="block text-xs muted" data-i18n="role_hr_desc"></span></span></label>
+        <label class="card-soft flex cursor-pointer items-start gap-3 px-3 py-2.5"><input type="radio" name="role" value="viewer" class="mt-1" style="accent-color:var(--blue)"><span><b data-i18n="role_viewer"></b><span class="block text-xs muted" data-i18n="role_viewer_desc"></span></span></label>
+      </fieldset>
+      <p id="user-error" class="text-sm" style="color:var(--red)" hidden></p>
       <div class="grid grid-cols-2 gap-3">
         <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
         <button value="save" class="btn btn-primary" data-i18n="save"></button>
