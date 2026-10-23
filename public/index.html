@@ -3,76 +3,110 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
   <title>نظام الحضور | Attendance</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'] } } } };
-  </script>
-  <style>
-    .tabular { font-variant-numeric: tabular-nums; }
-    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  </style>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="min-h-screen bg-stone-100 font-sans text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100">
-  <div class="mx-auto flex min-h-screen max-w-md flex-col px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
+<body class="min-h-screen">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col px-4 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
 
-    <!-- الشريط العلوي -->
     <header class="flex items-center justify-between py-2">
-      <div class="flex items-center gap-2">
-        <img src="/icon.svg" alt="" class="h-8 w-8">
-        <span class="text-lg font-semibold" data-i18n="app_name">نظام الحضور</span>
+      <div class="flex min-w-0 items-center gap-2.5">
+        <img src="/icon.svg" alt="" class="h-9 w-9">
+        <span id="company" class="truncate text-lg font-bold" data-i18n="app_name">نظام الحضور</span>
       </div>
-      <button data-lang-toggle class="h-9 min-w-9 rounded-full border border-stone-300 px-3 text-sm font-semibold dark:border-stone-700">EN</button>
+      <button data-lang-toggle class="icon-btn" aria-label="Language">EN</button>
     </header>
 
     <!-- الساعة الحيّة -->
-    <section class="mt-4 rounded-3xl bg-teal-700 px-6 py-7 text-center text-white shadow-lg shadow-teal-900/10">
-      <div id="clock" class="tabular text-5xl font-bold tracking-tight" dir="ltr">--:--:--</div>
-      <div id="date" class="mt-2 text-sm text-teal-100">&nbsp;</div>
+    <section class="punch-face mt-4 px-6 pb-4 pt-6 text-center">
+      <div class="tabular" dir="ltr"><span id="clock" class="clock-digits">--:--:--</span><span id="ampm" class="clock-ampm"></span></div>
+      <div id="date" class="mt-2 text-sm font-medium muted">&nbsp;</div>
+      <div class="perforation mt-4 pt-3 text-xs muted"><span data-i18n="work_hours">الدوام</span>: <span id="work-hours" class="tabular font-semibold" dir="ltr" style="color:var(--blue)">—</span></div>
     </section>
 
-    <!-- النموذج -->
-    <form id="punch-form" class="mt-5 space-y-4 rounded-3xl bg-white p-5 shadow-sm dark:bg-stone-900" autocomplete="off">
-      <h1 class="text-base font-semibold" data-i18n="employee_title">تسجيل الحضور والانصراف</h1>
+    <!-- الأقسام -->
+    <div class="seg mt-5" role="tablist">
+      <button role="tab" data-view="punch" aria-selected="true" data-i18n="tab_punch">الحضور</button>
+      <button role="tab" data-view="excuse" aria-selected="false" data-i18n="tab_excuse">تقديم عذر</button>
+      <button role="tab" data-view="mine" aria-selected="false" data-i18n="tab_mine">طلباتي</button>
+    </div>
 
-      <label class="block">
-        <span class="mb-1.5 block text-sm text-stone-600 dark:text-stone-400" data-i18n="emp_no">الرقم الوظيفي</span>
-        <input id="emp_no" name="emp_no" type="text" inputmode="numeric" autocomplete="off" required maxlength="30"
-          class="tabular w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3.5 text-lg outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/15 dark:border-stone-700 dark:bg-stone-800" dir="ltr">
-      </label>
-
-      <label class="block">
-        <span class="mb-1.5 block text-sm text-stone-600 dark:text-stone-400" data-i18n="pin">الرمز السري</span>
-        <input id="pin" name="pin" type="password" inputmode="numeric" pattern="\d*" autocomplete="off" required maxlength="6"
-          class="tabular w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3.5 text-lg tracking-[0.4em] outline-none transition focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/15 dark:border-stone-700 dark:bg-stone-800" dir="ltr">
-      </label>
-
-      <label class="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-400">
-        <input id="remember" type="checkbox" class="h-4 w-4 rounded accent-teal-700">
+    <!-- بيانات الموظف (مشتركة بين الأقسام) -->
+    <form id="main-form" class="card mt-4 space-y-4 p-5" autocomplete="off" novalidate>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block">
+          <span class="label" data-i18n="emp_no">الرقم الوظيفي</span>
+          <input id="emp_no" type="text" inputmode="numeric" autocomplete="off" maxlength="30" class="field tabular text-lg" dir="ltr">
+        </label>
+        <label class="block">
+          <span class="label" data-i18n="pin">الرمز السري</span>
+          <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" class="field tabular text-lg tracking-[0.35em]" dir="ltr">
+        </label>
+      </div>
+      <label class="flex items-center gap-2 text-sm muted">
+        <input id="remember" type="checkbox" class="h-4 w-4" style="accent-color:var(--blue)">
         <span data-i18n="remember">تذكّر رقمي على هذا الجهاز</span>
       </label>
 
-      <div class="grid grid-cols-2 gap-3 pt-1">
-        <button type="submit" data-action="in"
-          class="rounded-2xl bg-teal-700 py-4 text-base font-semibold text-white shadow-sm transition active:scale-[0.98] disabled:opacity-60 hover:bg-teal-800"
-          data-i18n="check_in">تسجيل حضور</button>
-        <button type="submit" data-action="out"
-          class="rounded-2xl bg-amber-500 py-4 text-base font-semibold text-stone-950 shadow-sm transition active:scale-[0.98] disabled:opacity-60 hover:bg-amber-600"
-          data-i18n="check_out">تسجيل انصراف</button>
+      <!-- الحضور -->
+      <div data-panel="punch" class="grid grid-cols-2 gap-3 pt-1">
+        <button type="submit" data-action="in" class="btn btn-primary py-4 text-base" data-i18n="check_in">تسجيل حضور</button>
+        <button type="submit" data-action="out" class="btn btn-outline py-4 text-base" data-i18n="check_out">تسجيل انصراف</button>
+      </div>
+
+      <!-- تقديم عذر -->
+      <div data-panel="excuse" class="space-y-4" hidden>
+        <label class="block">
+          <span class="label" data-i18n="excuse_type">نوع العذر</span>
+          <select id="ex-type" class="field">
+            <option value="medical" data-i18n="ex_medical">طبي</option>
+            <option value="personal" data-i18n="ex_personal">شخصي</option>
+            <option value="late" data-i18n="ex_late">تأخير</option>
+            <option value="early_leave" data-i18n="ex_early_leave">خروج مبكر</option>
+            <option value="absence" data-i18n="ex_absence">غياب</option>
+            <option value="other" data-i18n="ex_other">أخرى</option>
+          </select>
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block"><span class="label" data-i18n="date_from">من تاريخ</span><input id="ex-from" type="date" class="field tabular" dir="ltr"></label>
+          <label class="block"><span class="label" data-i18n="date_to">إلى تاريخ</span><input id="ex-to" type="date" class="field tabular" dir="ltr"></label>
+        </div>
+        <label class="block">
+          <span class="label" data-i18n="reason">السبب</span>
+          <textarea id="ex-reason" maxlength="1000" class="field" data-i18n-placeholder="reason_ph"></textarea>
+        </label>
+        <div>
+          <span class="label" data-i18n="attachment">مرفق</span>
+          <label class="card-soft flex cursor-pointer items-center gap-3 px-4 py-3.5 text-sm font-medium" style="color:var(--blue)">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5l-8.6 8.6a5.5 5.5 0 01-7.8-7.8l8.6-8.6a3.7 3.7 0 015.2 5.2l-8.6 8.6a1.8 1.8 0 01-2.6-2.6l7.9-7.9"/></svg>
+            <span id="ex-file-name" class="truncate" data-i18n="choose_attachment">إرفاق ملف أو التقاط صورة</span>
+            <input id="ex-file" type="file" accept="image/*,application/pdf" class="hidden">
+          </label>
+          <p class="mt-1.5 text-xs muted" data-i18n="attachment_hint"></p>
+        </div>
+        <button type="submit" data-action="excuse" class="btn btn-primary w-full py-3.5" data-i18n="send_excuse">إرسال العذر</button>
+      </div>
+
+      <!-- طلباتي -->
+      <div data-panel="mine" hidden>
+        <button type="submit" data-action="mine" class="btn btn-primary w-full py-3.5" data-i18n="show_my">عرض طلباتي</button>
       </div>
     </form>
 
-    <!-- النتيجة -->
-    <div id="result" class="mt-4 hidden" role="status" aria-live="polite"></div>
+    <div id="result" class="mt-4" role="status" aria-live="polite" hidden></div>
+    <ul id="my-list" class="mt-4 space-y-3" hidden></ul>
 
-    <footer class="mt-auto pt-8 text-center">
-      <a href="/hr" class="text-sm text-stone-500 underline-offset-4 hover:underline" data-i18n="hr_link">دخول الموارد البشرية</a>
+    <footer class="mt-auto pt-10 text-center">
+      <a href="/hr" class="text-sm font-medium underline-offset-4 hover:underline" style="color:var(--blue)" data-i18n="hr_link">دخول الموارد البشرية</a>
     </footer>
   </div>
 

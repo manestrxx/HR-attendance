@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
   <meta name="robots" content="noindex">
   <title>لوحة الموارد البشرية | HR Dashboard</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -11,253 +12,362 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: { fontFamily: { sans: ['"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'] } } } };
-  </script>
-  <style>
-    .tabular { font-variant-numeric: tabular-nums; }
-    .field { width: 100%; border-radius: 0.875rem; border: 1px solid rgb(214 211 209); background: rgb(250 250 249); padding: 0.65rem 0.9rem; outline: none; }
-    .field:focus { border-color: rgb(13 148 136); background: #fff; box-shadow: 0 0 0 4px rgb(13 148 136 / 0.15); }
-    @media (prefers-color-scheme: dark) {
-      .field { background: rgb(41 37 36); border-color: rgb(68 64 60); color: inherit; }
-      .field:focus { background: rgb(28 25 23); }
-    }
-    dialog::backdrop { background: rgb(12 10 9 / 0.5); }
-    .tab-btn[aria-selected="true"] { color: rgb(15 118 110); }
-    .tab-btn[aria-selected="true"] .tab-dot { opacity: 1; }
-    @media (prefers-color-scheme: dark) { .tab-btn[aria-selected="true"] { color: rgb(94 234 212); } }
-    .pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
-  </style>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="min-h-screen bg-stone-100 font-sans text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100">
+<body class="min-h-screen">
 
   <!-- ===== شاشة الدخول ===== -->
-  <main id="login-view" class="mx-auto hidden min-h-screen max-w-sm flex-col justify-center px-4">
+  <main id="login-view" class="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4" hidden>
     <div class="mb-6 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2"><img src="/icon.svg" alt="" class="h-9 w-9"><span class="text-lg font-semibold" data-i18n="hr_title">لوحة الموارد البشرية</span></a>
-      <button data-lang-toggle class="h-9 min-w-9 rounded-full border border-stone-300 px-3 text-sm font-semibold dark:border-stone-700">EN</button>
+      <a href="/" class="flex items-center gap-2.5"><img src="/icon.svg" alt="" class="h-10 w-10"><span class="text-lg font-bold" data-i18n="hr_title">لوحة الموارد البشرية</span></a>
+      <button data-lang-toggle class="icon-btn">EN</button>
     </div>
-    <form id="login-form" class="space-y-4 rounded-3xl bg-white p-6 shadow-sm dark:bg-stone-900">
-      <label class="block"><span class="mb-1.5 block text-sm text-stone-600 dark:text-stone-400" data-i18n="username">اسم المستخدم</span>
+    <form id="login-form" class="card space-y-4 p-6">
+      <label class="block"><span class="label" data-i18n="username">اسم المستخدم</span>
         <input name="username" class="field" autocomplete="username" required dir="ltr"></label>
-      <label class="block"><span class="mb-1.5 block text-sm text-stone-600 dark:text-stone-400" data-i18n="password">كلمة المرور</span>
+      <label class="block"><span class="label" data-i18n="password">كلمة المرور</span>
         <input name="password" type="password" class="field" autocomplete="current-password" required dir="ltr"></label>
-      <p id="login-error" class="hidden text-sm text-rose-600"></p>
-      <button class="w-full rounded-2xl bg-teal-700 py-3.5 font-semibold text-white hover:bg-teal-800" data-i18n="login">دخول</button>
+      <p id="login-error" class="text-sm" style="color:var(--red)" hidden></p>
+      <button class="btn btn-primary w-full py-3.5" data-i18n="login">دخول</button>
     </form>
   </main>
 
   <!-- ===== لوحة التحكم ===== -->
-  <div id="app-view" class="hidden">
-    <header class="sticky top-0 z-20 border-b border-stone-200 bg-white/90 backdrop-blur dark:border-stone-800 dark:bg-stone-900/90">
+  <div id="app-view" hidden>
+    <header class="sticky top-0 z-20 border-b-2 bg-white/95 backdrop-blur" style="border-color:var(--line)">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <div class="flex min-w-0 items-center gap-2">
-          <img src="/icon.svg" alt="" class="h-8 w-8">
-          <span class="truncate font-semibold" data-i18n="hr_title">لوحة الموارد البشرية</span>
-          <span id="live-dot" class="ms-1 inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-950 dark:text-teal-300">
-            <span class="pulse h-1.5 w-1.5 rounded-full bg-current"></span><span data-i18n="live">مباشر</span></span>
+        <div class="flex min-w-0 items-center gap-2.5">
+          <img src="/icon.svg" alt="" class="h-9 w-9">
+          <div class="min-w-0">
+            <div id="company-name" class="truncate font-bold leading-tight">HR</div>
+            <div id="live-dot" class="flex items-center gap-1.5 text-xs muted"><span class="dot-live"></span><span data-i18n="live">مباشر</span></div>
+          </div>
         </div>
         <div class="flex items-center gap-2">
-          <button data-lang-toggle class="h-9 min-w-9 rounded-full border border-stone-300 px-3 text-sm font-semibold dark:border-stone-700">EN</button>
-          <button id="btn-password" class="grid h-9 w-9 place-items-center rounded-full border border-stone-300 dark:border-stone-700" aria-label="password">
+          <button data-lang-toggle class="icon-btn">EN</button>
+          <button id="btn-password" class="icon-btn hidden md:grid" aria-label="password">
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3m-3 3l2 2m-5 1l2 2"/></svg></button>
-          <button id="btn-logout" class="h-9 rounded-full bg-stone-900 px-3 text-sm font-medium text-white dark:bg-stone-100 dark:text-stone-900" data-i18n="logout">خروج</button>
+          <button id="btn-logout" class="btn btn-ghost btn-sm hidden md:inline-flex" data-i18n="logout">تسجيل الخروج</button>
         </div>
       </div>
-      <!-- التبويبات (أعلى الشاشة في الكمبيوتر) -->
-      <nav class="mx-auto hidden max-w-6xl gap-1 px-4 md:flex" role="tablist">
-        <button class="tab-btn border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-stone-500 aria-selected:border-teal-700" data-tab="live" data-i18n="tab_live">مباشر</button>
-        <button class="tab-btn border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-stone-500 aria-selected:border-teal-700" data-tab="records" data-i18n="tab_records">السجلات</button>
-        <button class="tab-btn border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-stone-500 aria-selected:border-teal-700" data-tab="employees" data-i18n="tab_employees">الموظفون</button>
-        <button class="tab-btn border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-stone-500 aria-selected:border-teal-700" data-tab="export" data-i18n="tab_export">التصدير</button>
+      <nav class="mx-auto hidden max-w-6xl gap-1 overflow-x-auto px-4 md:flex" role="tablist">
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="live" data-i18n="tab_live"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="records" data-i18n="tab_records"></button>
+        <button class="tab-btn tab-top flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="excuses"><span data-i18n="tab_excuses"></span><span class="count-pill pending-pill" hidden></span></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="employees" data-i18n="tab_employees"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="reminders" data-i18n="tab_reminders"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="export" data-i18n="tab_export"></button>
+        <button class="tab-btn tab-top border-b-2 border-transparent px-3 py-2.5 text-sm font-semibold" data-tab="settings" data-i18n="tab_settings"></button>
       </nav>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 pb-28 pt-4 md:pb-10">
+    <main class="mx-auto max-w-6xl px-4 pb-28 pt-5 md:pb-12">
 
       <!-- ===== مباشر ===== -->
       <section id="tab-live" class="tab-panel space-y-4">
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
           <input id="live-date" type="date" class="field max-w-[11rem] tabular" dir="ltr">
-          <span id="live-updated" class="text-xs text-stone-500 tabular" dir="ltr"></span>
+          <div class="text-sm muted"><span data-i18n="work_hours"></span>: <b id="live-hours" class="tabular" dir="ltr" style="color:var(--blue)"></b></div>
         </div>
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <button data-filter="in" class="stat rounded-2xl bg-teal-700 p-4 text-start text-white">
-            <div class="text-3xl font-bold tabular" id="stat-in">0</div><div class="text-sm text-teal-100" data-i18n="stat_in">داخل العمل</div></button>
-          <button data-filter="out" class="stat rounded-2xl bg-white p-4 text-start dark:bg-stone-900">
-            <div class="text-3xl font-bold tabular text-amber-600" id="stat-out">0</div><div class="text-sm text-stone-500" data-i18n="stat_out">انصرفوا</div></button>
-          <button data-filter="absent" class="stat rounded-2xl bg-white p-4 text-start dark:bg-stone-900">
-            <div class="text-3xl font-bold tabular text-rose-600" id="stat-absent">0</div><div class="text-sm text-stone-500" data-i18n="stat_absent">لم يحضروا</div></button>
-          <button data-filter="all" class="stat rounded-2xl bg-white p-4 text-start dark:bg-stone-900">
-            <div class="text-3xl font-bold tabular" id="stat-total">0</div><div class="text-sm text-stone-500" data-i18n="stat_total">إجمالي الموظفين</div></button>
+        <p id="day-off" class="card-soft px-4 py-3 text-sm font-medium" style="color:var(--blue)" data-i18n="day_off_note" hidden></p>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <button data-filter="in" class="stat"><div class="n tabular" style="color:var(--green)" id="stat-in">0</div><div class="text-sm muted" data-i18n="stat_in"></div></button>
+          <button data-filter="late" class="stat"><div class="n tabular" style="color:var(--amber)" id="stat-late">0</div><div class="text-sm muted" data-i18n="stat_late"></div></button>
+          <button data-filter="out" class="stat"><div class="n tabular" style="color:var(--blue)" id="stat-out">0</div><div class="text-sm muted" data-i18n="stat_out"></div></button>
+          <button data-filter="absent" class="stat"><div class="n tabular" style="color:var(--red)" id="stat-absent">0</div><div class="text-sm muted" data-i18n="stat_absent"></div></button>
+          <button data-filter="excused" class="stat"><div class="n tabular" style="color:var(--violet)" id="stat-excused">0</div><div class="text-sm muted" data-i18n="stat_excused"></div></button>
+          <button data-filter="all" class="stat"><div class="n tabular" id="stat-total">0</div><div class="text-sm muted" data-i18n="stat_total"></div></button>
         </div>
-
         <div class="grid gap-4 lg:grid-cols-3">
-          <div class="rounded-3xl bg-white p-4 shadow-sm lg:col-span-2 dark:bg-stone-900">
-            <div class="mb-3 flex flex-wrap items-center gap-2">
-              <div id="live-chips" class="flex flex-wrap gap-1.5"></div>
-              <input id="live-search" class="field ms-auto max-w-xs py-2 text-sm" data-i18n-placeholder="search">
-            </div>
-            <ul id="live-list" class="divide-y divide-stone-100 dark:divide-stone-800"></ul>
+          <div class="card p-4 lg:col-span-2">
+            <input id="live-search" class="field mb-2 py-2 text-sm" data-i18n-placeholder="search">
+            <ul id="live-list" class="divide-y" style="--tw-divide-opacity:1;border-color:var(--blue-100)"></ul>
           </div>
-          <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900">
-            <h2 class="mb-3 font-semibold" data-i18n="recent">آخر الحركات</h2>
-            <ul id="recent-list" class="space-y-2"></ul>
+          <div class="card p-4">
+            <h2 class="mb-3 font-bold" data-i18n="recent"></h2>
+            <ul id="recent-list" class="space-y-2.5"></ul>
           </div>
         </div>
       </section>
 
       <!-- ===== السجلات ===== -->
-      <section id="tab-records" class="tab-panel hidden space-y-4">
-        <form id="records-form" class="grid grid-cols-2 gap-3 rounded-3xl bg-white p-4 shadow-sm md:grid-cols-6 dark:bg-stone-900">
-          <label class="col-span-1 md:col-span-1"><span class="mb-1 block text-xs text-stone-500" data-i18n="from">من</span>
-            <input name="from" type="date" class="field tabular" dir="ltr"></label>
-          <label class="col-span-1 md:col-span-1"><span class="mb-1 block text-xs text-stone-500" data-i18n="to">إلى</span>
-            <input name="to" type="date" class="field tabular" dir="ltr"></label>
-          <label class="col-span-2 md:col-span-2"><span class="mb-1 block text-xs text-stone-500" data-i18n="search">بحث</span>
-            <input name="q" class="field" data-i18n-placeholder="search"></label>
-          <div class="col-span-2 flex items-end gap-2 md:col-span-2">
+      <section id="tab-records" class="tab-panel space-y-4" hidden>
+        <form id="records-form" class="card grid grid-cols-2 gap-3 p-4 md:grid-cols-6">
+          <label><span class="label" data-i18n="from"></span><input name="from" type="date" class="field tabular" dir="ltr"></label>
+          <label><span class="label" data-i18n="to"></span><input name="to" type="date" class="field tabular" dir="ltr"></label>
+          <label class="col-span-2"><span class="label" data-i18n="search"></span><input name="q" class="field" data-i18n-placeholder="search"></label>
+          <div class="col-span-2 flex items-end gap-2">
             <select name="view" class="field">
-              <option value="movements" data-i18n="view_movements">الحركات</option>
-              <option value="summary" data-i18n="view_summary">الملخص اليومي</option>
+              <option value="movements" data-i18n="view_movements"></option>
+              <option value="summary" data-i18n="view_summary"></option>
+              <option value="period" data-i18n="view_period"></option>
             </select>
-            <button class="shrink-0 rounded-xl bg-teal-700 px-5 py-2.5 font-semibold text-white" data-i18n="show">عرض</button>
+            <button class="btn btn-primary shrink-0" data-i18n="show"></button>
           </div>
         </form>
-
-        <details class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900">
-          <summary class="cursor-pointer font-semibold" data-i18n="add_record">إضافة حركة يدوية</summary>
+        <details class="card p-4">
+          <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_record"></summary>
           <form id="manual-form" class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-6">
-            <input name="emp_no" class="field col-span-2 md:col-span-1 tabular" data-i18n-placeholder="emp_no" required dir="ltr">
-            <select name="type" class="field"><option value="in" data-i18n="in">حضور</option><option value="out" data-i18n="out">انصراف</option></select>
+            <input name="emp_no" class="field col-span-2 tabular md:col-span-1" data-i18n-placeholder="emp_no" required dir="ltr">
+            <select name="type" class="field"><option value="in" data-i18n="in"></option><option value="out" data-i18n="out"></option></select>
             <input name="date" type="date" class="field tabular" required dir="ltr">
             <input name="time" type="time" class="field tabular" required dir="ltr">
             <input name="note" class="field col-span-2 md:col-span-1" data-i18n-placeholder="note">
-            <button class="col-span-2 rounded-xl bg-teal-700 py-2.5 font-semibold text-white md:col-span-1" data-i18n="save">حفظ</button>
+            <button class="btn btn-primary col-span-2 md:col-span-1" data-i18n="save"></button>
           </form>
         </details>
-
-        <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900">
-          <p id="records-count" class="mb-2 text-sm text-stone-500"></p>
+        <div class="card p-4">
+          <p id="records-count" class="mb-2 text-sm muted"></p>
           <div id="records-out" class="overflow-x-auto"></div>
         </div>
       </section>
 
+      <!-- ===== الأعذار ===== -->
+      <section id="tab-excuses" class="tab-panel space-y-4" hidden>
+        <div class="flex flex-wrap items-center gap-2" id="excuse-chips">
+          <button class="chip" data-status="pending" data-i18n="st_pending"></button>
+          <button class="chip" data-status="approved" data-i18n="st_approved"></button>
+          <button class="chip" data-status="rejected" data-i18n="st_rejected"></button>
+          <button class="chip" data-status="" data-i18n="all"></button>
+          <input id="excuse-search" class="field ms-auto max-w-xs py-2 text-sm" data-i18n-placeholder="search">
+        </div>
+        <details class="card p-4">
+          <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_excuse"></summary>
+          <form id="excuse-form" class="mt-4 grid grid-cols-2 gap-3">
+            <label><span class="label" data-i18n="emp_no"></span><input name="emp_no" class="field tabular" required dir="ltr"></label>
+            <label><span class="label" data-i18n="excuse_type"></span>
+              <select name="type" class="field">
+                <option value="medical" data-i18n="ex_medical"></option><option value="personal" data-i18n="ex_personal"></option>
+                <option value="late" data-i18n="ex_late"></option><option value="early_leave" data-i18n="ex_early_leave"></option>
+                <option value="absence" data-i18n="ex_absence"></option><option value="other" data-i18n="ex_other"></option>
+              </select></label>
+            <label><span class="label" data-i18n="date_from"></span><input name="date_from" type="date" class="field tabular" required dir="ltr"></label>
+            <label><span class="label" data-i18n="date_to"></span><input name="date_to" type="date" class="field tabular" dir="ltr"></label>
+            <label class="col-span-2"><span class="label" data-i18n="reason"></span><textarea name="reason" class="field" maxlength="1000"></textarea></label>
+            <label class="col-span-2"><span class="label" data-i18n="attachment"></span><input name="file" type="file" accept="image/*,application/pdf" class="field py-2 text-sm"></label>
+            <label><span class="label" data-i18n="save_as"></span>
+              <select name="status" class="field"><option value="approved" data-i18n="st_approved"></option><option value="pending" data-i18n="st_pending"></option><option value="rejected" data-i18n="st_rejected"></option></select></label>
+            <div class="flex items-end"><button class="btn btn-primary w-full" data-i18n="save"></button></div>
+          </form>
+        </details>
+        <ul id="excuse-list" class="grid gap-3 md:grid-cols-2"></ul>
+      </section>
+
       <!-- ===== الموظفون ===== -->
-      <section id="tab-employees" class="tab-panel hidden space-y-4">
+      <section id="tab-employees" class="tab-panel space-y-4" hidden>
         <div class="grid gap-4 md:grid-cols-2">
-          <details class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900" open>
-            <summary class="cursor-pointer font-semibold" data-i18n="add_employee">إضافة موظف</summary>
+          <details class="card p-4" open>
+            <summary class="cursor-pointer font-bold" style="color:var(--blue)" data-i18n="add_employee"></summary>
             <form id="emp-form" class="mt-4 grid grid-cols-2 gap-3">
               <input name="emp_no" class="field tabular" data-i18n-placeholder="emp_no" required dir="ltr">
               <input name="pin" class="field tabular" data-i18n-placeholder="pin" inputmode="numeric" pattern="\d{4,6}" maxlength="6" required dir="ltr">
               <input name="name" class="field col-span-2" data-i18n-placeholder="name" required>
               <input name="department" class="field" data-i18n-placeholder="department">
               <input name="job_title" class="field" data-i18n-placeholder="job_title">
-              <p class="col-span-2 text-xs text-stone-500" data-i18n="pin_hint">من 4 إلى 6 أرقام</p>
-              <button class="col-span-2 rounded-xl bg-teal-700 py-2.5 font-semibold text-white" data-i18n="save">حفظ</button>
+              <p class="col-span-2 text-xs muted" data-i18n="pin_hint"></p>
+              <button class="btn btn-primary col-span-2" data-i18n="save"></button>
             </form>
           </details>
-
-          <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900">
-            <h2 class="font-semibold" data-i18n="import_title">رفع الموظفين من ملف</h2>
-            <p class="mt-1 text-sm text-stone-500" data-i18n="import_hint"></p>
-            <label class="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-stone-300 py-6 text-sm font-medium text-stone-600 hover:border-teal-600 hover:text-teal-700 dark:border-stone-700 dark:text-stone-300">
+          <div class="card p-4">
+            <h2 class="font-bold" data-i18n="import_title"></h2>
+            <p class="mt-1 text-sm muted" data-i18n="import_hint"></p>
+            <label class="card-soft mt-4 flex cursor-pointer items-center justify-center gap-2 border-2 border-dashed py-6 text-sm font-semibold" style="color:var(--blue);border-color:var(--line)">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-              <span data-i18n="choose_file">اختيار ملف</span>
+              <span data-i18n="choose_file"></span>
               <input id="import-file" type="file" accept=".xlsx,.csv,text/csv" class="hidden">
             </label>
-            <p id="import-result" class="mt-3 hidden text-sm"></p>
-            <div class="mt-3 flex gap-2 text-sm">
-              <a href="/api/hr/template?format=xlsx" class="rounded-full border border-stone-300 px-3 py-1.5 dark:border-stone-700" data-i18n="template_xlsx">قالب Excel</a>
-              <a href="/api/hr/template?format=csv" class="rounded-full border border-stone-300 px-3 py-1.5 dark:border-stone-700" data-i18n="template_csv">قالب CSV</a>
+            <p id="import-result" class="mt-3 whitespace-pre-line text-sm" hidden></p>
+            <div class="mt-3 flex gap-2">
+              <a href="/api/hr/template?format=xlsx" class="btn btn-ghost btn-sm" data-i18n="template_xlsx"></a>
+              <a href="/api/hr/template?format=csv" class="btn btn-ghost btn-sm" data-i18n="template_csv"></a>
             </div>
           </div>
         </div>
-
-        <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-stone-900">
-          <input id="emp-search" class="field mb-3 py-2 text-sm" data-i18n-placeholder="search">
-          <ul id="emp-list" class="divide-y divide-stone-100 dark:divide-stone-800"></ul>
+        <div class="card p-4">
+          <input id="emp-search" class="field mb-2 py-2 text-sm" data-i18n-placeholder="search">
+          <ul id="emp-list"></ul>
         </div>
       </section>
 
+      <!-- ===== التذكيرات ===== -->
+      <section id="tab-reminders" class="tab-panel space-y-4" hidden>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="max-w-xl">
+            <h2 class="text-xl font-bold" data-i18n="reminders_title"></h2>
+            <p class="mt-1 text-sm muted" data-i18n="reminders_hint"></p>
+          </div>
+          <button id="btn-add-reminder" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="add_reminder"></span></button>
+        </div>
+        <div id="email-warning" class="card-soft flex flex-wrap items-center justify-between gap-3 px-4 py-3" style="background:#fff8ec;border-color:#f6dfb2" hidden>
+          <p class="text-sm font-medium" style="color:#8a5300" data-i18n="email_missing"></p>
+          <button class="btn btn-ghost btn-sm" data-goto="settings" data-i18n="go_settings"></button>
+        </div>
+        <ul id="reminder-list" class="grid gap-3 md:grid-cols-2"></ul>
+        <details class="card p-4">
+          <summary class="cursor-pointer font-bold" data-i18n="send_log"></summary>
+          <ul id="reminder-log" class="mt-3 space-y-2 text-sm"></ul>
+        </details>
+      </section>
+
       <!-- ===== التصدير ===== -->
-      <section id="tab-export" class="tab-panel hidden">
-        <form id="export-form" class="mx-auto max-w-lg space-y-4 rounded-3xl bg-white p-5 shadow-sm dark:bg-stone-900">
+      <section id="tab-export" class="tab-panel" hidden>
+        <form id="export-form" class="card mx-auto max-w-lg space-y-4 p-5">
           <div>
-            <h2 class="text-lg font-semibold" data-i18n="export_title">تصدير التقارير</h2>
-            <p class="mt-1 text-sm text-stone-500" data-i18n="export_hint"></p>
+            <h2 class="text-xl font-bold" data-i18n="export_title"></h2>
+            <p class="mt-1 text-sm muted" data-i18n="export_hint"></p>
           </div>
           <div class="flex flex-wrap gap-2" id="quick-ranges">
-            <button type="button" data-range="today" class="rounded-full border border-stone-300 px-3 py-1.5 text-sm dark:border-stone-700" data-i18n="today">اليوم</button>
-            <button type="button" data-range="week" class="rounded-full border border-stone-300 px-3 py-1.5 text-sm dark:border-stone-700" data-i18n="this_week">آخر 7 أيام</button>
-            <button type="button" data-range="month" class="rounded-full border border-stone-300 px-3 py-1.5 text-sm dark:border-stone-700" data-i18n="this_month">هذا الشهر</button>
-            <button type="button" data-range="last_month" class="rounded-full border border-stone-300 px-3 py-1.5 text-sm dark:border-stone-700" data-i18n="last_month">الشهر الماضي</button>
+            <button type="button" data-range="today" class="chip" data-i18n="today"></button>
+            <button type="button" data-range="week" class="chip" data-i18n="this_week"></button>
+            <button type="button" data-range="month" class="chip" data-i18n="this_month"></button>
+            <button type="button" data-range="last_month" class="chip" data-i18n="last_month"></button>
           </div>
           <div class="grid grid-cols-2 gap-3">
-            <label><span class="mb-1 block text-xs text-stone-500" data-i18n="from">من</span><input name="from" type="date" class="field tabular" required dir="ltr"></label>
-            <label><span class="mb-1 block text-xs text-stone-500" data-i18n="to">إلى</span><input name="to" type="date" class="field tabular" required dir="ltr"></label>
+            <label><span class="label" data-i18n="from"></span><input name="from" type="date" class="field tabular" required dir="ltr"></label>
+            <label><span class="label" data-i18n="to"></span><input name="to" type="date" class="field tabular" required dir="ltr"></label>
           </div>
-          <label class="block"><span class="mb-1 block text-xs text-stone-500" data-i18n="file_lang">لغة الملف</span>
-            <select name="lang" class="field"><option value="ar" data-i18n="arabic">العربية</option><option value="en" data-i18n="english">English</option></select></label>
-          <button data-format="xlsx" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 py-3.5 font-semibold text-white hover:bg-teal-800">
+          <button data-format="xlsx" class="btn btn-primary w-full py-3.5">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
-            <span data-i18n="export_excel">تحميل Excel</span></button>
-          <div class="grid grid-cols-2 gap-3">
-            <button data-format="csv" class="rounded-2xl border border-stone-300 py-3 text-sm font-semibold dark:border-stone-700" data-i18n="export_csv">CSV الحركات</button>
-            <button data-format="csv_summary" class="rounded-2xl border border-stone-300 py-3 text-sm font-semibold dark:border-stone-700" data-i18n="export_csv_summary">CSV الملخص</button>
+            <span data-i18n="export_excel"></span></button>
+          <div class="grid grid-cols-2 gap-2">
+            <button data-format="csv_movements" class="btn btn-ghost btn-sm" data-i18n="export_csv"></button>
+            <button data-format="csv_summary" class="btn btn-ghost btn-sm" data-i18n="export_csv_summary"></button>
+            <button data-format="csv_period" class="btn btn-ghost btn-sm" data-i18n="export_csv_period"></button>
+            <button data-format="csv_excuses" class="btn btn-ghost btn-sm" data-i18n="export_csv_excuses"></button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== الإعدادات ===== -->
+      <section id="tab-settings" class="tab-panel" hidden>
+        <form id="settings-form" class="mx-auto grid max-w-3xl gap-4 md:grid-cols-2">
+          <div class="card space-y-4 p-5">
+            <h2 class="font-bold" data-i18n="settings_company"></h2>
+            <label class="block"><span class="label" data-i18n="company_name"></span><input name="company_name" class="field" maxlength="80"></label>
+            <h2 class="pt-2 font-bold" data-i18n="settings_work"></h2>
+            <div class="grid grid-cols-2 gap-3">
+              <label><span class="label" data-i18n="work_start"></span><input name="work_start" type="time" class="field tabular" dir="ltr" required></label>
+              <label><span class="label" data-i18n="work_end"></span><input name="work_end" type="time" class="field tabular" dir="ltr" required></label>
+            </div>
+            <label class="block"><span class="label" data-i18n="grace"></span><input name="grace_minutes" type="number" min="0" max="180" class="field tabular" dir="ltr"></label>
+            <div>
+              <span class="label" data-i18n="weekend"></span>
+              <div id="weekend-days" class="flex flex-wrap gap-2"></div>
+            </div>
+            <button class="btn btn-primary w-full" data-i18n="save"></button>
+          </div>
+          <div class="card space-y-4 p-5">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="font-bold" data-i18n="settings_email"></h2>
+              <span id="email-status" class="badge"></span>
+            </div>
+            <p class="card-soft px-3 py-2.5 text-xs leading-relaxed" data-i18n="email_help"></p>
+            <label class="block"><span class="label" data-i18n="api_key"></span><input name="resend_api_key" type="password" class="field" autocomplete="off" dir="ltr" data-i18n-placeholder="api_key_ph"></label>
+            <label class="block"><span class="label" data-i18n="mail_from"></span><input name="mail_from" class="field" dir="ltr" data-i18n-placeholder="mail_from_ph"></label>
+            <button class="btn btn-primary w-full" data-i18n="save"></button>
+            <div class="border-t-2 border-dashed pt-4" style="border-color:var(--line)">
+              <span class="label" data-i18n="test_to"></span>
+              <div class="flex gap-2">
+                <input id="test-email" type="email" class="field" dir="ltr" placeholder="you@email.com">
+                <button type="button" id="btn-test-email" class="btn btn-outline shrink-0" data-i18n="send_test"></button>
+              </div>
+            </div>
           </div>
         </form>
       </section>
     </main>
 
-    <!-- التبويبات (أسفل الشاشة في الجوال) -->
-    <nav class="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-stone-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-stone-800 dark:bg-stone-900/95" role="tablist">
-      <button class="tab-btn flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-stone-500" data-tab="live">
-        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-i18n="tab_live">مباشر</span></button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-stone-500" data-tab="records">
-        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-i18n="tab_records">السجلات</span></button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-stone-500" data-tab="employees">
-        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14c2 .7 3.5 2.9 3.5 6"/></svg><span data-i18n="tab_employees">الموظفون</span></button>
-      <button class="tab-btn flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-stone-500" data-tab="export">
-        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg><span data-i18n="tab_export">التصدير</span></button>
+    <!-- التبويبات أسفل الشاشة (الجوال) -->
+    <nav class="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t-2 bg-white pb-[env(safe-area-inset-bottom)] md:hidden" style="border-color:var(--line)" role="tablist">
+      <button class="tab-btn flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold" data-tab="live">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-i18n="tab_live"></span></button>
+      <button class="tab-btn flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold" data-tab="records">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-i18n="tab_records"></span></button>
+      <button class="tab-btn relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold" data-tab="excuses">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M12 10v6M9 13h6"/></svg><span data-i18n="tab_excuses"></span>
+        <span class="count-pill pending-pill absolute top-1 start-1/2 ms-2" hidden></span></button>
+      <button class="tab-btn flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold" data-tab="employees">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14c2 .7 3.5 2.9 3.5 6"/></svg><span data-i18n="tab_employees"></span></button>
+      <button id="btn-more" class="tab-btn flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold" data-more>
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span data-i18n="tab_more"></span></button>
     </nav>
   </div>
 
+  <!-- قائمة المزيد (الجوال) -->
+  <dialog id="more-dialog" class="m-0 mt-auto w-full max-w-none rounded-b-none">
+    <div class="space-y-1 p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <button class="btn btn-ghost w-full justify-start border-0" data-goto="reminders"><span data-i18n="tab_reminders"></span></button>
+      <button class="btn btn-ghost w-full justify-start border-0" data-goto="export"><span data-i18n="tab_export"></span></button>
+      <button class="btn btn-ghost w-full justify-start border-0" data-goto="settings"><span data-i18n="tab_settings"></span></button>
+      <button class="btn btn-ghost w-full justify-start border-0" id="more-password"><span data-i18n="change_password"></span></button>
+      <button class="btn btn-danger w-full justify-start border-0" id="more-logout"><span data-i18n="logout"></span></button>
+    </div>
+  </dialog>
+
   <!-- نافذة تعديل موظف -->
-  <dialog id="edit-dialog" class="w-[min(92vw,28rem)] rounded-3xl p-0 dark:bg-stone-900 dark:text-stone-100">
+  <dialog id="edit-dialog" class="w-[min(92vw,28rem)]">
     <form id="edit-form" method="dialog" class="grid grid-cols-2 gap-3 p-5">
-      <h3 class="col-span-2 text-lg font-semibold" data-i18n="edit">تعديل</h3>
+      <h3 class="col-span-2 text-lg font-bold" data-i18n="edit"></h3>
       <input type="hidden" name="id">
-      <label class="col-span-1"><span class="mb-1 block text-xs text-stone-500" data-i18n="emp_no"></span><input name="emp_no" class="field tabular" required dir="ltr"></label>
-      <label class="col-span-1"><span class="mb-1 block text-xs text-stone-500" data-i18n="department"></span><input name="department" class="field"></label>
-      <label class="col-span-2"><span class="mb-1 block text-xs text-stone-500" data-i18n="name"></span><input name="name" class="field" required></label>
-      <label class="col-span-2"><span class="mb-1 block text-xs text-stone-500" data-i18n="job_title"></span><input name="job_title" class="field"></label>
-      <label class="col-span-2"><span class="mb-1 block text-xs text-stone-500" data-i18n="new_pin"></span><input name="pin" class="field tabular" inputmode="numeric" pattern="\d{4,6}" maxlength="6" dir="ltr"></label>
-      <p id="edit-error" class="col-span-2 hidden text-sm text-rose-600"></p>
-      <button value="cancel" formnovalidate class="rounded-xl border border-stone-300 py-2.5 dark:border-stone-700" data-i18n="cancel">إلغاء</button>
-      <button value="save" class="rounded-xl bg-teal-700 py-2.5 font-semibold text-white" data-i18n="save">حفظ</button>
+      <label><span class="label" data-i18n="emp_no"></span><input name="emp_no" class="field tabular" required dir="ltr"></label>
+      <label><span class="label" data-i18n="department"></span><input name="department" class="field"></label>
+      <label class="col-span-2"><span class="label" data-i18n="name"></span><input name="name" class="field" required></label>
+      <label class="col-span-2"><span class="label" data-i18n="job_title"></span><input name="job_title" class="field"></label>
+      <label class="col-span-2"><span class="label" data-i18n="new_pin"></span><input name="pin" class="field tabular" inputmode="numeric" pattern="\d{4,6}" maxlength="6" dir="ltr"></label>
+      <p id="edit-error" class="col-span-2 text-sm" style="color:var(--red)" hidden></p>
+      <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+      <button value="save" class="btn btn-primary" data-i18n="save"></button>
+    </form>
+  </dialog>
+
+  <!-- نافذة التذكير -->
+  <dialog id="reminder-dialog" class="w-[min(94vw,32rem)]">
+    <form id="reminder-form" method="dialog" class="grid grid-cols-2 gap-3 p-5">
+      <h3 id="reminder-dialog-title" class="col-span-2 text-lg font-bold"></h3>
+      <input type="hidden" name="id">
+      <label class="col-span-2"><span class="label" data-i18n="r_title"></span><input name="title" class="field" required maxlength="150" data-i18n-placeholder="r_title_ph"></label>
+      <label class="col-span-2"><span class="label" data-i18n="r_category"></span>
+        <select name="category" class="field">
+          <option value="document" data-i18n="cat_document"></option><option value="contract" data-i18n="cat_contract"></option>
+          <option value="insurance" data-i18n="cat_insurance"></option><option value="training" data-i18n="cat_training"></option>
+          <option value="other" data-i18n="cat_other"></option>
+        </select></label>
+      <label class="col-span-2"><span class="label" data-i18n="r_recipients"></span><textarea name="recipients" class="field min-h-0" rows="2" required dir="ltr" data-i18n-placeholder="r_recipients_ph"></textarea></label>
+      <label><span class="label" data-i18n="r_due"></span><input name="due_date" type="date" class="field tabular" required dir="ltr"></label>
+      <label><span class="label" data-i18n="r_repeat"></span>
+        <select name="repeat" class="field">
+          <option value="once" data-i18n="rep_once"></option><option value="weekly" data-i18n="rep_weekly"></option>
+          <option value="monthly" data-i18n="rep_monthly"></option><option value="quarterly" data-i18n="rep_quarterly"></option>
+          <option value="semiannual" data-i18n="rep_semiannual"></option><option value="yearly" data-i18n="rep_yearly"></option>
+          <option value="biennial" data-i18n="rep_biennial"></option>
+        </select></label>
+      <label class="col-span-2"><span class="label" data-i18n="r_before"></span>
+        <select name="notify_before_days" class="field" id="before-select"></select></label>
+      <label class="col-span-2"><span class="label" data-i18n="r_details"></span><textarea name="details" class="field" maxlength="2000"></textarea></label>
+      <p id="reminder-error" class="col-span-2 text-sm" style="color:var(--red)" hidden></p>
+      <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+      <button value="save" class="btn btn-primary" data-i18n="save"></button>
     </form>
   </dialog>
 
   <!-- نافذة تغيير كلمة المرور -->
-  <dialog id="pw-dialog" class="w-[min(92vw,24rem)] rounded-3xl p-0 dark:bg-stone-900 dark:text-stone-100">
+  <dialog id="pw-dialog" class="w-[min(92vw,24rem)]">
     <form id="pw-form" method="dialog" class="space-y-3 p-5">
-      <h3 class="text-lg font-semibold" data-i18n="change_password">تغيير كلمة المرور</h3>
-      <p id="pw-must" class="hidden rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" data-i18n="must_change"></p>
+      <h3 class="text-lg font-bold" data-i18n="change_password"></h3>
+      <p id="pw-must" class="card-soft px-3 py-2.5 text-sm" data-i18n="must_change" hidden></p>
       <input name="current" type="password" class="field" data-i18n-placeholder="current_password" autocomplete="current-password" required dir="ltr">
       <input name="next" type="password" class="field" data-i18n-placeholder="new_password" autocomplete="new-password" minlength="8" required dir="ltr">
-      <p id="pw-error" class="hidden text-sm text-rose-600"></p>
+      <p id="pw-error" class="text-sm" style="color:var(--red)" hidden></p>
       <div class="grid grid-cols-2 gap-3">
-        <button value="cancel" formnovalidate class="rounded-xl border border-stone-300 py-2.5 dark:border-stone-700" data-i18n="cancel">إلغاء</button>
-        <button value="save" class="rounded-xl bg-teal-700 py-2.5 font-semibold text-white" data-i18n="save">حفظ</button>
+        <button value="cancel" formnovalidate class="btn btn-ghost" data-i18n="cancel"></button>
+        <button value="save" class="btn btn-primary" data-i18n="save"></button>
       </div>
     </form>
   </dialog>
 
-  <!-- الإشعارات -->
-  <div id="toasts" class="pointer-events-none fixed inset-x-0 top-16 z-50 flex flex-col items-center gap-2 px-4"></div>
+  <div id="toasts" class="pointer-events-none fixed inset-x-0 top-20 z-50 flex flex-col items-center gap-2 px-4"></div>
 
   <script src="/js/i18n.js"></script>
   <script src="/js/hr.js"></script>
