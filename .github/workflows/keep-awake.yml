@@ -1,0 +1,22 @@
+# يزور الموقع كل 10 دقائق تقريبًا حتى لا ينام على خطة Render المجانية
+name: Keep site awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping health check
+        run: |
+          for i in 1 2 3; do
+            if curl -fsS --max-time 60 https://hr-attendance-abpr.onrender.com/healthz; then
+              echo " — awake"; exit 0
+            fi
+            echo "attempt $i failed, retrying..."; sleep 20
+          done
+          exit 1
