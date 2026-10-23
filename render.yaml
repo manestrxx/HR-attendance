@@ -1,9 +1,9 @@
-# render.yaml — إعدادات النشر على Render
+# render.yaml — إعدادات النشر على Render (الخطة المجانية + قاعدة Turso للحفظ الدائم)
 services:
   - type: web
     name: hr-attendance
     runtime: node
-    plan: starter            # القرص الدائم يتطلب خطة مدفوعة، بدونه تُمسح البيانات مع كل نشر
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /healthz
@@ -12,15 +12,11 @@ services:
         value: "22"
       - key: APP_TIMEZONE
         value: Asia/Muscat
-      - key: DB_PATH
-        value: /var/data/attendance.db
-      - key: ADMIN_USER
-        value: admin
-      - key: ADMIN_PASSWORD
-        sync: false            # تكتبها بنفسك في Render عند الإنشاء
-      - key: SESSION_SECRET
-        generateValue: true
-    disk:
-      name: data
-      mountPath: /var/data
-      sizeGB: 1
+      - key: TURSO_DATABASE_URL
+        sync: false            # من لوحة Turso (يبدأ بـ libsql://)
+      - key: TURSO_AUTH_TOKEN
+        sync: false            # من لوحة Turso
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: HR Reminders <onboarding@resend.dev>

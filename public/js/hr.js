@@ -46,6 +46,7 @@
     state.me = me;
     document.body.classList.remove('role-admin', 'role-hr', 'role-viewer');
     document.body.classList.add('role-' + (me.role || 'admin'));
+    $('storage-warning').hidden = me.storage !== 'local';
     $('login-view').hidden = true;
     $('app-view').hidden = false;
     const time = await call('/api/time');
@@ -624,6 +625,7 @@
     const data = await call('/api/hr/settings');
     if (!data.ok) return;
     state.settings = data.settings;
+    state.storage = data.storage;
     renderSettings();
   }
   function renderSettings() {
@@ -639,6 +641,15 @@
     $('weekend-days').innerHTML = [0, 1, 2, 3, 4, 5, 6].map((d) => `
       <label class="chip cursor-pointer select-none" aria-pressed="${s.weekend.includes(d)}">
         <input type="checkbox" class="sr-only" value="${d}" ${s.weekend.includes(d) ? 'checked' : ''}>${escapeHtml(t('d' + d))}</label>`).join('');
+    const sto = state.storage;
+    if (sto) {
+      const cloudOn = sto.mode === 'turso';
+      $('storage-badge').className = 'badge ' + (cloudOn ? 'b-approved' : 'b-rejected');
+      $('storage-badge').textContent = t(cloudOn ? 'storage_cloud' : 'storage_local');
+      $('storage-detail').textContent = cloudOn
+        ? t('storage_detail', { t: sto.last_sync_label || '—', p: sto.pending }) + (sto.failed_statements ? ` • ⚠️ ${sto.last_error}` : '')
+        : t('storage_local_detail');
+    }
     const st = $('email-status');
     st.className = 'badge ' + (s.email_configured ? 'b-approved' : 'b-pending');
     st.textContent = t(s.email_configured ? 'email_ok' : 'email_off');

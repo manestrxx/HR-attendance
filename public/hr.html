@@ -66,6 +66,7 @@
 
     <main class="mx-auto max-w-6xl px-4 pb-28 pt-5 md:pb-12">
       <p class="viewer-only card-soft mb-4 px-4 py-2.5 text-sm font-medium" style="color:var(--blue)" data-i18n="read_only"></p>
+      <p id="storage-warning" class="admin-only mb-4 rounded-2xl border-2 px-4 py-3 text-sm font-semibold" style="border-color:#f6cccc;background:#fff5f5;color:#8a1c1c" data-i18n="storage_local_warning" hidden></p>
 
       <!-- ===== مباشر ===== -->
       <section id="tab-live" class="tab-panel space-y-4">
@@ -262,6 +263,13 @@
               <span data-i18n="add_site"></span></button>
           </div>
           <ul id="site-list" class="mt-4 grid gap-3 sm:grid-cols-2"></ul>
+        </div>
+        <div class="card mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 p-5">
+          <div class="min-w-0">
+            <h2 class="font-bold" data-i18n="storage_title"></h2>
+            <p id="storage-detail" class="mt-1 text-sm muted"></p>
+          </div>
+          <span id="storage-badge" class="badge"></span>
         </div>
         <form id="settings-form" class="mx-auto grid max-w-3xl gap-4 md:grid-cols-2">
           <div class="card space-y-4 p-5">
