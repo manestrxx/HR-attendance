@@ -1,6 +1,7 @@
 # يبقي الموقع صاحيًا على خطة Render المجانية (ينام بعد 15 دقيقة بدون زيارات).
-# GitHub يشغّل المهام المجدولة كل 25-35 دقيقة تقريبًا مهما طلبنا أقل،
-# لذلك كل تشغيل يزور الموقع عدة مرات بفاصل 4 دقائق ليغطي الفجوة بين التشغيلات.
+# GitHub يشغّل المهام المجدولة على فترات غير منتظمة (بين 35 و75 دقيقة تقريبًا)،
+# لذلك كل تشغيل يزور الموقع كل 4 دقائق لمدة 80 دقيقة، والتشغيل الجديد يحل محل القديم،
+# فتبقى التغطية متواصلة بدون فجوات.
 name: Keep site awake
 
 on:
@@ -15,12 +16,13 @@ concurrency:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
-      - name: Ping every 4 minutes
+      - name: Ping every 4 minutes for 80 minutes
         run: |
-          for i in 1 2 3 4 5 6 7; do
+          for i in $(seq 1 20); do
             curl -fsS --max-time 60 -o /dev/null -w "ping $i: %{http_code} in %{time_total}s\n" \
               https://hr-attendance-abpr.onrender.com/healthz || echo "ping $i failed"
-            [ "$i" -lt 7 ] && sleep 240
+            if [ "$i" -lt 20 ]; then sleep 240; fi
           done
+          exit 0
